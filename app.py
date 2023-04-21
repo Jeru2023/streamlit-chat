@@ -3,7 +3,7 @@ import toml
 import streamlit as st
 import os
 
-st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🎭')
+st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🍋')
 
 with open("secrets.toml", "r") as f:
     config = toml.load(f)
@@ -16,10 +16,14 @@ BASE_PROMPT = [{"role": "system", "content": "You are a helpful assistant."}]
 
 with st.sidebar:
 	# st.header("Control Panel")
-	st.markdown("# 🎭 Control Panel")
-	temperature = st.radio(
-    "Select temperature 👇",
-    (0, 1, 2))
+	st.markdown("# Control Panel 📌")
+	context_level = st.slider('Context Level 👇', 1, 10, 4, 1)
+	temperature = st.slider('Temperature 👇', 0.0, 2.0, 1.0, 0.5)
+	top_p = st.slider('Top P 👇', 0.1, 1.0, 1.0, 0.1)
+	presence_penalty = st.slider('Presence Penalty 👇', -2.0, 2.0, 0.0, 0.1)
+	frequency_penalty = st.slider('Frequence Penalty 👇', -2.0, 2.0, 0.0, 0.1)
+	#https://platform.openai.com/docs/api-reference/completions/create
+
 	
 	uploaded_files = st.file_uploader("Choose a PDF file", accept_multiple_files=True)
 	for uploaded_file in uploaded_files:
@@ -36,7 +40,7 @@ def show_messages(text):
 if "messages" not in st.session_state:
     st.session_state["messages"] = BASE_PROMPT
 
-st.header("Welcome to Jeru's CHATBOT")
+st.header("Welcome to Jeru's CHATBOT 🍋")
 
 text = st.empty()
 show_messages(text)
