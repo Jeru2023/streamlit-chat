@@ -1,6 +1,7 @@
 import openai
 import toml
 import streamlit as st
+from streamlit_option_menu import option_menu
 import os
 
 st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🍋')
@@ -13,6 +14,14 @@ os.environ["http_proxy"]="http://127.0.0.1:7890"
 os.environ["https_proxy"]="http://127.0.0.1:7890"
 
 BASE_PROMPT = [{"role": "system", "content": "You are a helpful assistant."}]
+
+topbar = option_menu(None, ["Home", "Upload",  "Tasks", 'Settings'], 
+	icons=['house', 'cloud-upload', "list-task", 'gear'], 
+	menu_icon="cast", default_index=0, orientation="horizontal",
+	styles={
+		"nav-link": {"--hover-color": "#eee"},		
+	}
+)	
 
 with st.sidebar:
 	# st.header("Control Panel")
@@ -35,7 +44,7 @@ def show_messages(text):
     messages_str = [
         f"{_['role']}: {_['content']}" for _ in st.session_state["messages"][1:]
     ]
-    text.text_area("Messages", value=str("\n".join(messages_str)), height=400)
+    text.text_area("Messages", value=str("\n".join(messages_str)), height=800)
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = BASE_PROMPT
