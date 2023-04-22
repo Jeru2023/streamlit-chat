@@ -3,12 +3,11 @@ import toml
 import streamlit as st
 from streamlit_option_menu import option_menu
 import os
-import boto3
 
 st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🍋')
 
 with open("secrets.toml", "r") as f:
-    config = toml.load(f)
+	config = toml.load(f)
 
 openai.api_key = config["OPENAI_KEY"]
 os.environ["http_proxy"]="http://127.0.0.1:7890"
@@ -40,18 +39,34 @@ with st.sidebar:
 		bytes_data = uploaded_file.read()
 		st.write("filename:", uploaded_file.name)
 		st.write(bytes_data)
+		
+if 'past' not in st.session_state:
+	st.session_state['past'] = []
+
+if "generated" not in st.session_state:
+    st.session_state["generated"] = BASE_PROMPT
+	
+st.session_state["key"] = 0
+
+def parse_data(data):
+	role = data['role']
+	content = data['content']
+	output = f"{role}: {content}"
+	return output
 
 def show_messages(text):
-    messages_str = [
-        f"{_['role']}: {_['content']}" for _ in st.session_state["messages"][1:]
-    ]
-    text.text_area("Messages", value=str("\n".join(messages_str)), height=600)
-	
-	
+	content = []
+	for i in range(1, len(st.session_state['generated']), 1):
+		past_message = parse_data(st.session_state["past"][i-1])
+		generated_message = parse_data(st.session_state["generated"][i])
+		content.append(past_message)
+		content.append(generated_message)
+	print('use widget gen:',st.session_state["generated"])
+	print('use widget past:',st.session_state["past"])
+	st.session_state["key"] += 1
+	text.text_area("Messages", value=str("\n".join(content)), key=st.session_state["key"], height=600)
 
-if "messages" not in st.session_state:
-    st.session_state["messages"] = BASE_PROMPT
-
+	
 st.header("Welcome to Jeru's CHATBOT 🍋")
 
 text = st.empty()
@@ -60,17 +75,12 @@ show_messages(text)
 prompt = st.text_input("Prompt", placeholder="Enter your message here...")
 
 if st.button("Send"):
-    with st.spinner("Generating response..."):
-        st.session_state["messages"] += [{"role": "user", "content": prompt}]
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=st.session_state["messages"]
-        )
-        message_response = response["choices"][0]["message"]["content"]
-        st.session_state["messages"] += [
-            {"role": "system", "content": message_response}
-        ]
-        show_messages(text)
-
-if st.button("Clear"):
-    st.session_state["messages"] = BASE_PROMPT
-    show_messages(text)
+	with st.spinner("Generating response..."):
+	
+		st.session_state["past"].append({"role": "user", "content": prompt})
+		#TODO：to add context
+		response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}])
+		message_response = response["choices"][0]["message"]["content"]
+		st.session_state["generated"].append({"role": "system", "content": message_response})
+	
+		show_messages(text)
