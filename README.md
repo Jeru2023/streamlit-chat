@@ -4,7 +4,7 @@ This is a Streamlit chatbox demo working with chatGPT. But due to the restrictio
 
 I'm going to implement another version in next project with cool features like voice chat, langchain integration with private API etc.
 
-Note: sidebar and topbar interaction are not implemented yet.
+Note: sidebar and topbar reactions are not implemented yet.
 
 ![image](https://github.com/Jeru2023/streamlit-chat/blob/main/image/screen.jpg?raw=true)
 
