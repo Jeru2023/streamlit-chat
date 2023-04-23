@@ -1,10 +1,10 @@
 # streamlit-chat
 
-Chatbox build on streamlit
-![image](https://github.com/Jeru2023/streamlit-chat/blob/main/image/screen.jpg?raw=true)
+Chatbox built with streamlit
 
-# Note
 This is a Streamlit demo, it works with chatGPT. But due to the restriction of text_area component, I'm going to implement another version in next project with cool features.
+
+![image](https://github.com/Jeru2023/streamlit-chat/blob/main/image/screen.jpg?raw=true)
 
 # Usage
 Create secrets.toml as config file to store your OpenAI api key.
