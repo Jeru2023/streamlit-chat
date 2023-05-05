@@ -6,7 +6,7 @@ import os
 
 st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🍋')
 
-with open("secrets.toml", "r") as f:
+with open(".streamlit/secrets.toml", "r") as f:
 	config = toml.load(f)
 
 openai.api_key = config["OPENAI_KEY"]
