@@ -1,6 +1,6 @@
 # streamlit-chat
 
-This is a Streamlit chatbox demo working with chatGPT. But due to the restriction of text_area component, only pure text format supported in the chat box.
+Markdown supported in chatbox UI.
 
 I'm going to implement another version in next project with cool features like voice chat, langchain integration with private API etc.
 
