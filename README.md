@@ -9,7 +9,7 @@ Note: sidebar and topbar reactions are not implemented yet.
 ![image](https://github.com/Jeru2023/streamlit-chat/blob/main/image/screen.jpg?raw=true)
 
 # Usage
-Create secrets.toml as config file to store your OpenAI api key.
+Create secrets.toml as config file to store your OpenAI api key, keep this config file in .streamlit folder.
 
 Replace YOUR_KEY with your actual API key.
 
