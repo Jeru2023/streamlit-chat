@@ -6,6 +6,9 @@ import os
 
 st.set_page_config(page_title='ChatGPT Assistant', layout='wide', page_icon='🍋')
 
+#################################################################
+##### Loading config
+#################################################################
 with open(".streamlit/secrets.toml", "r") as f:
 	config = toml.load(f)
 
@@ -15,6 +18,36 @@ os.environ["https_proxy"]="http://127.0.0.1:7890"
 
 BASE_PROMPT = [{"role": "system", "content": "You are a helpful assistant."}]
 
+#################################################################
+##### Generate response function
+#################################################################
+def generate_response(message_log):
+    """
+    Use OpenAI's ChatCompletion API to get the chatbot's response.
+    """
+    # Set the model name and creativity level
+    model_name = "gpt-3.5-turbo"
+    temperature = 0.7
+
+    # Call the ChatCompletion API
+    response = openai.ChatCompletion.create(
+        model=model_name,
+        messages=message_log,
+        temperature=temperature,
+    )
+
+    # Find the first text response from the chatbot
+    for choice in response.choices:
+        if "text" in choice:
+            return choice.text
+
+    # If no text response is found, return the first response's content (which may be empty)
+    return response.choices[0].message.content
+
+
+#################################################################
+##### Building sidebar
+#################################################################
 topbar = option_menu(None, ["Home", "Upload",  "Tasks", 'Settings'], 
 	icons=['house', 'cloud-upload', "list-task", 'gear'], 
 	menu_icon="cast", default_index=0, orientation="horizontal",
@@ -39,48 +72,35 @@ with st.sidebar:
 		bytes_data = uploaded_file.read()
 		st.write("filename:", uploaded_file.name)
 		st.write(bytes_data)
-		
+
+#################################################################
+##### Chatbox
+#################################################################	
 if 'past' not in st.session_state:
 	st.session_state['past'] = []
 
 if "generated" not in st.session_state:
-    st.session_state["generated"] = BASE_PROMPT
+    st.session_state["generated"] = []
 	
-st.session_state["key"] = 0
-
-def parse_data(data):
-	role = data['role']
-	content = data['content']
-	output = f"{role}: {content}"
-	return output
-
-def show_messages(text):
-	content = []
-	for i in range(1, len(st.session_state['generated']), 1):
-		past_message = parse_data(st.session_state["past"][i-1])
-		generated_message = parse_data(st.session_state["generated"][i])
-		content.append(past_message)
-		content.append(generated_message)
-	print('use widget gen:',st.session_state["generated"])
-	print('use widget past:',st.session_state["past"])
-	st.session_state["key"] += 1
-	text.text_area("Messages", value=str("\n".join(content)), key=st.session_state["key"], height=600)
-
+message_log = [{"role": "user", "content": "hi"}]
 	
 st.header("Welcome to Jeru's CHATBOT 🍋")
-
-text = st.empty()
-show_messages(text)
 
 prompt = st.text_input("Prompt", placeholder="Enter your message here...")
 
 if st.button("Send"):
 	with st.spinner("Generating response..."):
-	
-		st.session_state["past"].append({"role": "user", "content": prompt})
-		#TODO：to add context
-		response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}])
-		message_response = response["choices"][0]["message"]["content"]
-		st.session_state["generated"].append({"role": "system", "content": message_response})
-	
-		show_messages(text)
+		message_log.append({"role": "user", "content": prompt})
+		output = generate_response(message_log)
+		message_log.append({"role": "assistant", "content": output})
+    	#store the output
+		st.session_state['past'].append(prompt)
+		st.session_state['generated'].append(output)
+
+if st.session_state['generated']:
+	for i in range(len(st.session_state['generated'])-1, -1, -1):
+		st.markdown(f'''<div style='background:white;color:black;padding:10px'><b>**AI:**</b> {st.session_state["generated"][i]}</div>''',unsafe_allow_html=True)
+		st.markdown(f'''<div style='background:#ddd;color:black;padding:10px'><b>**You:**</b> {st.session_state["past"][i]}</div>''',unsafe_allow_html=True)
+
+
+
